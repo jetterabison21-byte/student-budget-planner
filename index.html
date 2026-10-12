@@ -1,0 +1,197 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Student Budget Planner</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;font-family:Arial,sans-serif;background:#f0f6ff;color:#17345e}
+header{background:linear-gradient(135deg,#1769aa,#53c9e9);color:white;text-align:center;padding:30px 15px}
+header h1{margin:0;font-size:clamp(25px,5vw,38px)}
+header p{margin-bottom:0}
+main{max-width:850px;margin:20px auto;padding:0 12px}
+.card{background:white;border-radius:16px;padding:22px;margin-bottom:18px;box-shadow:0 3px 14px #17345e12}
+h2{font-size:20px;margin-top:0;color:#1769aa}
+label{display:block;font-weight:bold;margin:13px 0 6px}
+input,select,textarea{width:100%;padding:12px;border:1px solid #cbd8e8;border-radius:8px;font:inherit;background:white}
+textarea{min-height:100px;resize:vertical}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.money{background:#e8f8ec;padding:16px;border-radius:10px;margin-top:14px}
+.money strong{font-size:24px;color:#16834a}
+.alloc{padding:14px;border-radius:10px;margin:10px 0;background:#eef6ff}
+.alloc strong{font-size:19px}
+table{width:100%;border-collapse:collapse;margin-top:12px}
+th,td{border:1px solid #d5e0ef;padding:9px;text-align:left;font-size:14px}
+th{background:#e8f3ff}
+.table-wrap{overflow-x:auto}
+button{border:0;border-radius:9px;padding:12px 16px;font-weight:bold;font-size:15px;cursor:pointer}
+.primary{background:#1769aa;color:white}
+.secondary{background:#e6f1ff;color:#1769aa}
+.danger{background:#ffe7e7;color:#b42323;padding:7px}
+.actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:15px}
+.small{color:#61738b;font-size:13px}
+footer{text-align:center;padding:20px;color:#61738b}
+@media(max-width:520px){.row{grid-template-columns:1fr}.card{padding:16px}th,td{font-size:12px;padding:7px}}
+@media print{body{background:white}.actions,.danger,.small.instructions{display:none}.card{box-shadow:none;border:1px solid #ddd;break-inside:avoid}header{background:#1769aa!important;color:white!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}}
+</style>
+</head>
+<body>
+<header>
+  <h1>💰 STUDENT BUDGET PLANNER</h1>
+  <p>Plan Today, Secure Tomorrow!</p>
+  <p>Manage your money. Build better habits.</p>
+</header>
+
+<main>
+<form id="planner">
+<section class="card">
+<h2>1. MY PROFILE</h2>
+<label for="name">Full Name</label>
+<input id="name" required placeholder="Enter your full name">
+<div class="row">
+<div><label for="grade">Grade and Section</label><input id="grade" required placeholder="e.g. Grade 12 - ABM"></div>
+<div><label for="week">Week</label><input id="week" required placeholder="e.g. Week 1"></div>
+</div>
+<label for="date">Date</label>
+<input id="date" type="date" required>
+</section>
+
+<section class="card">
+<h2>2. MY INCOME</h2>
+<label for="allowance">Allowance from Parents (₱)</label>
+<input id="allowance" type="number" min="0" step="0.01" value="100" required>
+<label for="other">Other Income (Side Hustle/Small Business) (₱)</label>
+<input id="other" type="number" min="0" step="0.01" value="0" required>
+<div class="money">TOTAL MONEY AVAILABLE (A)<br><strong id="total">₱100.00</strong></div>
+</section>
+
+<section class="card">
+<h2>3. MY BUDGET ALLOCATION</h2>
+<p>Before spending, allocate your money using the 70-20-10 rule.</p>
+<div class="alloc">🔴 <strong>70% — NEEDS</strong><p>Transportation, meals, photocopying, and school projects.</p><span id="needs">₱70.00</span></div>
+<div class="alloc">🟢 <strong>20% — SAVINGS</strong><p>Save for emergencies and future needs.</p><span id="savings">₱20.00</span></div>
+<div class="alloc">🔵 <strong>10% — WANTS</strong><p>Milk tea, games, online shopping, and hangouts.</p><span id="wants">₱10.00</span></div>
+</section>
+
+<section class="card">
+<h2>4. EXPENSE TRACKER</h2>
+<p class="small instructions">Record each expense. Select its category, then click Add Expense.</p>
+<div class="row">
+<div><label for="expenseDate">Date</label><input id="expenseDate" type="date"></div>
+<div><label for="category">Category</label>
+<select id="category"><option>Needs</option><option>Savings</option><option>Wants</option></select></div>
+</div>
+<label for="item">Item / Description</label>
+<input id="item" placeholder="e.g. Transportation fare">
+<label for="amount">Amount (₱)</label>
+<input id="amount" type="number" min="0.01" step="0.01" placeholder="Enter amount">
+<div class="actions"><button class="primary" id="add" type="button">+ Add Expense</button></div>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Date</th><th>Item</th><th>Category</th><th>Amount</th><th class="actions-col">Action</th></tr></thead>
+<tbody id="expenseRows"></tbody>
+</table>
+</div>
+<div class="money">TOTAL EXPENSES (B)<br><strong id="spent">₱0.00</strong></div>
+<div class="money">REMAINING MONEY (A − B)<br><strong id="remaining">₱100.00</strong></div>
+<p class="small">Note: Savings entries are counted as allocated expenses in this activity.</p>
+</section>
+
+<section class="card">
+<h2>5. SUMMARY & REFLECTION</h2>
+<label for="reflection">Did you follow your 70-20-10 budget plan? What did you learn about managing your money this week?</label>
+<textarea id="reflection" required placeholder="Write your reflection here..."></textarea>
+<div class="actions">
+<button class="primary" type="submit">Submit & Print Activity</button>
+<button class="secondary" type="button" id="reset">Clear Activity</button>
+</div>
+<p class="small">Submitting opens your browser's print dialog. You can print or save your completed activity as a PDF.</p>
+</section>
+</form>
+</main>
+<footer>Student Budget Planner • Financial Literacy Activity</footer>
+
+<script>
+const $ = id => document.getElementById(id);
+const peso = n => "₱" + n.toLocaleString("en-PH",{minimumFractionDigits:2,maximumFractionDigits:2});
+let expenses = [];
+
+$("date").value = new Date().toISOString().slice(0,10);
+$("expenseDate").value = $("date").value;
+
+function totalIncome(){
+ return Math.max(0,Number($("allowance").value)||0)
+      + Math.max(0,Number($("other").value)||0);
+}
+
+function render(){
+ const total = totalIncome();
+ const spent = expenses.reduce((sum,e)=>sum+e.amount,0);
+ $("total").textContent = peso(total);
+ $("needs").textContent = peso(total*.70);
+ $("savings").textContent = peso(total*.20);
+ $("wants").textContent = peso(total*.10);
+ $("spent").textContent = peso(spent);
+ $("remaining").textContent = peso(total-spent);
+ $("remaining").style.color = total-spent < 0 ? "#b42323" : "#16834a";
+
+ $("expenseRows").innerHTML = "";
+ expenses.forEach((e,i)=>{
+  const tr = document.createElement("tr");
+  [e.date,e.item,e.category,peso(e.amount)].forEach(value=>{
+   const td = document.createElement("td");
+   td.textContent = value;
+   tr.appendChild(td);
+  });
+  const td = document.createElement("td");
+  td.className = "actions-col";
+  const btn = document.createElement("button");
+  btn.type = "button";
+  btn.className = "danger";
+  btn.textContent = "Remove";
+  btn.onclick = ()=>{expenses.splice(i,1);render()};
+  td.appendChild(btn);
+  tr.appendChild(td);
+  $("expenseRows").appendChild(tr);
+ });
+}
+
+["allowance","other"].forEach(id=>$(id).addEventListener("input",render));
+
+$("add").addEventListener("click",()=>{
+ const item = $("item").value.trim();
+ const amount = Number($("amount").value);
+ const date = $("expenseDate").value;
+ if(!item || !date || !Number.isFinite(amount) || amount<=0){
+  alert("Please enter the date, item description, and a valid amount.");
+  return;
+ }
+ expenses.push({date,item,category:$("category").value,amount});
+ $("item").value="";
+ $("amount").value="";
+ render();
+});
+
+$("reset").addEventListener("click",()=>{
+ if(!confirm("Clear all information and expenses?"))return;
+ $("planner").reset();
+ expenses=[];
+ $("date").value=new Date().toISOString().slice(0,10);
+ $("expenseDate").value=$("date").value;
+ $("allowance").value=100;
+ $("other").value=0;
+ render();
+});
+
+$("planner").addEventListener("submit",e=>{
+ e.preventDefault();
+ if(!$("planner").reportValidity())return;
+ window.print();
+});
+
+render();
+</script>
+</body>
+</html>
